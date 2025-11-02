@@ -28,13 +28,20 @@ Config options
 * GAME_PATH: path to your AppImage
 * DISABLE_AUTOUPDATER: boolean flag to disable the auto updater
 * CHANGE_SPEEDS: boolean flag to change the speed settings
-* NEW_SPEEDS: 4 values of the speed relative to real time
+* NEW_SPEEDS: 4 values of the speed relative to real time in format '1 2 3 4'
+* CHANGE_MIN_TURN_RAD: boolean flag to change the minimum allowed turn radius
+* MIN_TURN_RAD: desired minimum turn radius in meters (game default: 29)
+* CHANGE_MAX_SLOPE: boolean flag to change the maximum allowed track slope
+* MAX_SLOPE: desired maximum allowed track slope in degrees (game default: 4)
+* CHANGE_START_MONEY: boolean flag to change the starting money amount
+* START_MONEY: desired starting money in billions (game default: 3)
 * CLEANUP_FILES: determines whether to delete the working directory after the patched AppImage is created
 
 
 Planned features for the future
 -------------------------------
 * Allow for more than 4 speed settings
+* Allow changing maximum train speeds
 
 
 Contributions
