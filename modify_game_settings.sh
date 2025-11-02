@@ -47,28 +47,62 @@ else
     npx @electron/asar extract "${tmp_dir}/app.asar" "${tmp_dir}/app.asar.unpacked"
 fi
 
+# Paths to index and interlinedRoutes files
+FINDEX=$(ls ${tmp_dir}/app.asar.unpacked/dist/renderer/public/index*.js)
+FROUTES=$(ls ${tmp_dir}/app.asar.unpacked/dist/renderer/public/interlinedRoutes*.js)
+
 ##############################################
 # Make any requested modifications
 
 ## Disable auto updater
-if $DISABLE_AUTOUPDATER; then
+if [ -n "$DISABLE_AUTOUPDATER" ] && $DISABLE_AUTOUPDATER; then
     echo -e 'Disabling the auto updater\n'
     sed -i 's/autoUpdater\["on"\]/autoUpdater\["off"\]/g' "${tmp_dir}/app.asar.unpacked/dist/main/main.js"
 fi
 
 ## Change simulation speeds
-if $CHANGE_SPEEDS; then
+if [ -n "$CHANGE_SPEEDS" ] && $CHANGE_SPEEDS; then
     echo -e 'Updating the in-game speed options\n'
-    # There are 2 files to edit: get info for both
-    # TODO: improve how this is done - shouldn't have to call grep 3 times, but it was behaving weirdly when I stored the output from that call
-    FOO1_TO_EDIT=$(grep -rn 'const GAME_SECONDS_PER_SECOND' "${tmp_dir}/app.asar.unpacked/dist/renderer/public" | cut -d ":" -f 1 | head -n1)
-    FOO2_TO_EDIT=$(grep -rn 'const GAME_SECONDS_PER_SECOND' "${tmp_dir}/app.asar.unpacked/dist/renderer/public" | cut -d ":" -f 1 | tail -n1)
-    STR_TO_REPLACE=$(grep -rn 'const GAME_SECONDS_PER_SECOND' "${tmp_dir}/app.asar.unpacked/dist/renderer/public" | cut -d ":" -f 3- | head -n1 | awk '{$1=$1};1')
-    STR_REPLACEMENT='const GAME_SECONDS_PER_SECOND = { "slow": '$(echo $NEW_SPEEDS | cut -d " " -f 1)', "normal": '$(echo $NEW_SPEEDS | cut -d " " -f 2)', "fast": '$(echo $NEW_SPEEDS | cut -d " " -f 3)', "ultrafast": '$(echo $NEW_SPEEDS | cut -d " " -f 4)' };'
-    # Update each file
-    sed -i 's/'"$STR_TO_REPLACE"'/'"$STR_REPLACEMENT"'/g' "${FOO1_TO_EDIT}"
-    sed -i 's/'"$STR_TO_REPLACE"'/'"$STR_REPLACEMENT"'/g' "${FOO2_TO_EDIT}"
+    NEW_SPEEDS=($NEW_SPEEDS)
+    sed -i -E '{
+      s/"slow":[[:space:]]*[0-9]+/"slow": '"${NEW_SPEEDS[0]}"'/
+      s/"normal":[[:space:]]*[0-9]+/"normal": '"${NEW_SPEEDS[1]}"'/
+      s/"fast":[[:space:]]*[0-9]+/"fast": '"${NEW_SPEEDS[2]}"'/
+      s/"ultrafast":[[:space:]]*[0-9]+/"ultrafast": '"${NEW_SPEEDS[3]}"'/
+    }' "${FINDEX}"
+    sed -i -E '{
+      s/"slow":[[:space:]]*[0-9]+/"slow": '"${NEW_SPEEDS[0]}"'/
+      s/"normal":[[:space:]]*[0-9]+/"normal": '"${NEW_SPEEDS[1]}"'/
+      s/"fast":[[:space:]]*[0-9]+/"fast": '"${NEW_SPEEDS[2]}"'/
+      s/"ultrafast":[[:space:]]*[0-9]+/"ultrafast": '"${NEW_SPEEDS[3]}"'/
+    }' "${FROUTES}"
 fi
+
+## Change minimum turn radius
+if [ -n "$CHANGE_MIN_TURN_RAD" ] && $CHANGE_MIN_TURN_RAD; then
+    echo -e 'Updating the minimum allowed turn radius\n'
+    sed -i -E 's/("MIN_TURN_RADIUS":)[[:space:]]*[^,]*/\1 '"$MIN_TURN_RAD"'/' "${FINDEX}"
+    sed -i -E 's/("MIN_TURN_RADIUS":)[[:space:]]*[^,]*/\1 '"$MIN_TURN_RAD"'/' "${FROUTES}"
+fi
+
+## Change max slope percentage
+if [ -n "$CHANGE_MAX_SLOPE" ] && $CHANGE_MAX_SLOPE; then
+    echo -e 'Updating the maximum allowed slope\n'
+    # Allowed maximum
+    sed -i -E 's/("MAX_SLOPE_PERCENTAGE":)[[:space:]]*[^,]*/\1 '"$MAX_SLOPE"'/' "${FINDEX}"
+    sed -i -E 's/("MAX_SLOPE_PERCENTAGE":)[[:space:]]*[^,]*/\1 '"$MAX_SLOPE"'/' "${FROUTES}"
+    # Update speed penalty range
+    sed -i -E 's/("maxSlopePercentage":)[[:space:]]*[^,]*/\1 '"$MAX_SLOPE"'/2' "${FINDEX}"
+    sed -i -E 's/("maxSlopePercentage":)[[:space:]]*[^,]*/\1 '"$MAX_SLOPE"'/2' "${FROUTES}"
+fi
+
+## Change starting money
+if [ -n "$CHANGE_START_MONEY" ] && $CHANGE_START_MONEY; then
+    echo -e 'Updating the starting money amount\n'
+    sed -i -E 's/("STARTING_MONEY":)[[:space:]]*[^,]*/\1 '"$START_MONEY"'e9/' "${FINDEX}"
+    sed -i -E 's/("STARTING_MONEY":)[[:space:]]*[^,]*/\1 '"$START_MONEY"'e9/' "${FROUTES}"
+fi
+
 
 ##############################################
 # Repack app.asar and remake the AppImage
