@@ -15,9 +15,12 @@ Requirements
 
 Usage
 -----
-1. Edit config.cfg.  Ensure that GAME_PATH is properly set.  Set mod flags as desired.
-2. Run modify_game_settings.sh.
-3. Run the patched AppImage found in the builds/ directory and enjoy.
+1. Open a terminal.  Clone the repo and enter it:
+   - git clone https://github.com/rslurry/Subway-Builder-Shell-Tweaks
+   - cd Subway-Builder-Shell-Tweaks
+3. Edit config.cfg.  Ensure that GAME_PATH is properly set.  Set mod flags as desired.
+4. Run modify_game_settings.sh.
+5. Run the patched AppImage found in the builds/ directory and enjoy.
 
 
 Config options
