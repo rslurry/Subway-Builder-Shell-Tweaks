@@ -1,6 +1,6 @@
 *****************************************************************
-                   Subway Builder Shell Tweaks
-  A basic shell scripting approach to tweaking Subway Builder
+# Subway Builder Shell Tweaks
+### A basic shell scripting approach to tweaking Subway Builder
 *****************************************************************
 
 
@@ -32,9 +32,15 @@ Config options
 * CLEANUP_FILES: determines whether to delete the working directory after the patched AppImage is created
 
 
+Planned features for the future
+-------------------------------
+* Allow for more than 4 speed settings
+
+
 Contributions
 -------------
 Contributions are welcomed and encouraged, especially for Windows/Mac compatibility and adding new features.
+
 
 
 Questions, bugs, and feedback
