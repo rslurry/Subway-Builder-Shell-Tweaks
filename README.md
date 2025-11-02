@@ -22,11 +22,11 @@ Usage
 
 Config options
 --------------
-GAME_PATH: path to your AppImage
-DISABLE_AUTOUPDATER: boolean flag to disable the auto updater
-CHANGE_SPEEDS: boolean flag to change the speed settings
-NEW_SPEEDS: 4 values of the speed relative to real time
-CLEANUP_FILES: determines whether to delete the working directory after the patched AppImage is created
+* GAME_PATH: path to your AppImage
+* DISABLE_AUTOUPDATER: boolean flag to disable the auto updater
+* CHANGE_SPEEDS: boolean flag to change the speed settings
+* NEW_SPEEDS: 4 values of the speed relative to real time
+* CLEANUP_FILES: determines whether to delete the working directory after the patched AppImage is created
 
 
 Contributions
