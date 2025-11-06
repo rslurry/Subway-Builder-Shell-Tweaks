@@ -2,6 +2,7 @@
 
 SCRIPT_DIR=$(dirname -- "$( readlink -f -- "$0"; )";)
 
+
 ##############################################
 # Load configuration file
 CONFIG_FILE="${SCRIPT_DIR}/config.cfg"
@@ -9,6 +10,15 @@ if [ -f "$CONFIG_FILE" ]; then
     source "$CONFIG_FILE"
 else
     echo "Error: Configuration file '$CONFIG_FILE' not found."
+    exit 1
+fi
+
+##############################################
+# Sanity check - stop if the game file doesn't exist
+if [ -f "$GAME_PATH" ]; then
+    echo -e "Base AppImage used:\n    ${GAME_PATH}\n"
+else
+    echo -e "Base AppImage not found at specified location:\n    ${GAME_PATH}"
     exit 1
 fi
 
@@ -56,8 +66,12 @@ FROUTES=$(ls ${tmp_dir}/app.asar.unpacked/dist/renderer/public/interlinedRoutes*
 
 ## Disable auto updater
 if [ -n "$DISABLE_AUTOUPDATER" ] && $DISABLE_AUTOUPDATER; then
-    echo -e 'Disabling the auto updater\n'
-    sed -i 's/autoUpdater\["on"\]/autoUpdater\["off"\]/g' "${tmp_dir}/app.asar.unpacked/dist/main/main.js"
+    if [ -f "${tmp_dir}/app.asar.unpacked/dist/main/main.jsc" ]; then
+        echo -e "Disabling the auto-updater was requested, but this is only possible for versions <=0.7.3.  The AppImage contents suggest that the version provided is >=0.7.6.  Continuing without disabling the auto-updater.\n"
+    else
+        echo -e 'Disabling the auto updater\n'
+        sed -i 's/autoUpdater\["on"\]/autoUpdater\["off"\]/g' "${tmp_dir}/app.asar.unpacked/dist/main/main.js"
+    fi
 fi
 
 ## Change simulation speeds
@@ -117,11 +131,13 @@ else
     appimagetool "AppDir"
     cd - > /dev/null
     PATCHED_FILE=$(find "${tmp_dir}" -type f -exec stat -c "%y %n" {} + | sort -r | head -n 1 | cut -d " " -f 4-)
-    if [[ "${PATCHED_FILE}" != *".AppImage"* || "${PATCHED_FILE}" == *"${game_basename}"* ]]; then
+    echo $PATCHED_FILE
+    if [[ "${PATCHED_FILE}" != *".AppImage"* ]]; then
         echo -e "\n*****\n\nError: Patched AppImage not found.  See above output from appimagetool for info."
         exit 1
     fi
     BUILD_DIR="${SCRIPT_DIR}/builds"
+    echo "Creating builds directory at ${BUILD_DIR} to hold the patched AppImage"
     mkdir -p "${BUILD_DIR}"
     BUILD_FILE="${BUILD_DIR}/Subway_Builder_patched.AppImage"
     yes | cp -a "${PATCHED_FILE}" "${BUILD_FILE}"
